@@ -1,0 +1,13 @@
+{% extends 'store/base.html' %}
+{% block content %}
+<h2>Your Dashboard</h2>
+
+<h3>Recently Viewed Books</h3>
+<ul>
+  {% for view in viewed_books %}
+    <li><a href="{% url 'book_detail' view.book.pk %}">{{ view.book.title }}</a></li>
+  {% empty %}
+    <li>You haven't viewed any books yet.</li>
+  {% endfor %}
+</ul>
+{% endblock %}

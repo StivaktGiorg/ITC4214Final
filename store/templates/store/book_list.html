@@ -1,0 +1,37 @@
+{% extends 'store/base.html' %}
+{% block content %}
+<h2>Browse Books</h2>
+
+<form method="get">
+  Search:
+  <input type="text" name="q" value="{{ request.GET.q }}" placeholder="Search by title or author">
+
+  Category:
+  <select name="category">
+    <option value="">All</option>
+    {% for cat in categories %}
+      <option value="{{ cat.id }}" {% if request.GET.category == cat.id|stringformat:"s" %}selected{% endif %}>
+        {{ cat.name }}
+      </option>
+    {% endfor %}
+  </select>
+
+  Format:
+  <select name="format">
+    <option value="">All</option>
+    <option {% if request.GET.format == "Paperback" %}selected{% endif %}>Paperback</option>
+    <option {% if request.GET.format == "Hardcover" %}selected{% endif %}>Hardcover</option>
+    <option {% if request.GET.format == "eBook" %}selected{% endif %}>eBook</option>
+  </select>
+
+  <input type="submit" value="Filter">
+</form>
+
+<ul>
+  {% for book in books %}
+    <li><a href="{% url 'book_detail' book.pk %}">{{ book.title }}</a> ({{ book.format }}) - ${{ book.price }}</li>
+  {% empty %}
+    <li>No books found.</li>
+  {% endfor %}
+</ul>
+{% endblock %}

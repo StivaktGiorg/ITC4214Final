@@ -1,0 +1,9 @@
+{% extends 'store/base.html' %}
+{% block content %}
+<h2>New Releases</h2>
+<ul>
+  {% for book in featured_books %}
+    <li><a href="{% url 'book_detail' book.pk %}">{{ book.title }}</a> - {{ book.author }}</li>
+  {% endfor %}
+</ul>
+{% endblock %}

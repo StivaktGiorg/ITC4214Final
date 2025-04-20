@@ -1,0 +1,20 @@
+{% extends "store/base.html" %}
+{% block content %}
+<h2>Admin Dashboard</h2>
+<p>Welcome, {{ request.user.username }}</p>
+
+<a href="{% url 'add_book' %}">Add New Book</a>
+
+<h3>Books</h3>
+<ul>
+  {% for book in books %}
+    <li>
+      {{ book.title }} - {{ book.author }}
+      <a href="{% url 'edit_book' book.id %}">Edit</a> |
+      <a href="{% url 'delete_book' book.id %}">Delete</a>
+    </li>
+  {% empty %}
+    <li>No books found.</li>
+  {% endfor %}
+</ul>
+{% endblock %}

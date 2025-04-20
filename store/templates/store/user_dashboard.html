@@ -1,0 +1,18 @@
+{% extends "store/base.html" %}
+{% block content %}
+  <h2>Welcome, {{ request.user.username }}!</h2>
+
+  <h3>Recently Viewed Books</h3>
+  {% if viewed_items %}
+    <ul>
+      {% for item in viewed_items %}
+        <li><a href="{% url 'book_detail' item.book.id %}">{{ item.book.title }}</a> on {{ item.viewed_at }}</li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <p>You haven't viewed any books yet.</p>
+  {% endif %}
+
+ 
+
+{% endblock %}

@@ -1,0 +1,103 @@
+{% extends 'store/base.html' %}
+
+{% block content %}
+<h2>{{ book.title }}</h2>
+<p><strong>Author:</strong> {{ book.author }}</p>
+<p><strong>Description:</strong> {{ book.description }}</p>
+<p><strong>Price:</strong> ${{ book.price }}</p>
+
+{% if user.is_authenticated %}
+  <form action="{% url 'add_to_wishlist' book.id %}" method="POST">
+    {% csrf_token %}
+    <button type="submit">Add to Wishlist</button>
+  </form>
+
+  <form action="{% url 'add_to_cart' book.id %}" method="POST">
+    {% csrf_token %}
+    <label for="quantity">Quantity:</label>
+    <input type="number" name="quantity" id="quantity" value="1" min="1" required>
+    <button type="submit">Add to Cart</button>
+  </form>
+{% endif %}
+
+<hr>
+
+<h3>Reviews</h3>
+
+<div id="review-list">
+  {% for review in reviews %}
+    <div>
+      <strong>{{ review.user.username }}</strong>: 
+      ⭐ {{ review.rating }}<br>
+      {{ review.comment }}
+    </div>
+  {% empty %}
+    <p>No reviews yet.</p>
+  {% endfor %}
+</div>
+
+<div id="new-review"></div>
+
+{% if user.is_authenticated %}
+  <h4>Leave a Review</h4>
+  <form id="review-form">
+    {% csrf_token %}
+    <label for="rating">Rating:</label>
+    <select name="rating" id="rating" required>
+      <option value="">Choose</option>
+      {% for i in "12345" %}
+        <option value="{{ i }}">{{ i }}</option>
+      {% endfor %}
+    </select><br>
+
+    <label for="comment">Comment:</label><br>
+    <textarea id="comment" name="comment" rows="4" required></textarea><br>
+
+    <button type="submit">Submit Review</button>
+  </form>
+  <p id="review-msg" style="color: green;"></p>
+{% else %}
+  <p><a href="{% url 'login' %}">Log in</a> to leave a review.</p>
+{% endif %}
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  const form = document.getElementById("review-form");
+  if (form) {
+    form.addEventListener("submit", function (e) {
+      e.preventDefault();
+
+      const rating = document.getElementById("rating").value;
+      const comment = document.getElementById("comment").value;
+      const bookId = "{{ book.id }}";
+
+      fetch("{% url 'add_review_ajax' %}", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "X-CSRFToken": "{{ csrf_token }}",
+        },
+        body: JSON.stringify({ book_id: bookId, rating: rating, comment: comment })
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          const reviewHTML = `
+            <div>
+              <strong>${data.username}</strong>: ⭐ ${data.rating}<br>
+              ${data.comment}
+            </div>
+          `;
+          document.getElementById("review-list").innerHTML = reviewHTML + document.getElementById("review-list").innerHTML;
+          document.getElementById("review-msg").textContent = "Review submitted!";
+          form.reset();
+        } else {
+          document.getElementById("review-msg").textContent = data.message;
+        }
+      });
+    });
+  }
+});
+</script>
+
+{% endblock %}
